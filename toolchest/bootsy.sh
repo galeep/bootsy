@@ -5,17 +5,15 @@
 # I'm not a big fan of the "let's curl things and run them" 
 # pattern. But life is a series of continuous improvements.
 
-# No stdin here. Don't even ask. 
-export DEBIAN_FRONTEND=noninteractive
-
 # Use real ansible or ppa ansible? 
 # Use ppa ansible for now
-sudo apt-add-repository ppa:ansible/ansible -y
-sudo apt-get update
-sudo apt-get upgrade
+# TODO: less clumsy passing of noninteractive env var
+sudo DEBIAN_FRONTEND=noninteractive apt-add-repository ppa:ansible/ansible -y
+sudo DEBIAN_FRONTEND=noninteractive apt-get update
+sudo DEBIAN_FRONTEND=noninteractive apt-get upgrade
 
 function agi { 
-    sudo apt-get install -y ${1}
+    sudo DEBIAN_FRONTEND=noninteractive apt-get install -y ${1}
 }
 
 function hashiget() { 
@@ -31,6 +29,7 @@ agi git
 agi ansible # FIXME: pin to version
 agi virtualbox
 agi vagrant
+agi docker.io
 
 # get hashicorp tools
 # TODO: move to a more structured mechanism
@@ -50,3 +49,16 @@ chmod 755 ${scriptfile}
 
 hashiget ${scriptfile} packer 1.1.1
 hashiget ${scriptfile} terraform 0.10.8
+
+# TODO: properly Dockerize this
+
+git clone https://github.com/cloudnativelabs/kube-metal.git
+pushd kube-metal
+sudo GOPATH=/usr/bin tools/get-providers.sh
+popd 
+
+cat << _EOF_ > ~/.terraformrc
+  providers {
+  packet = "${GOPATH}/bin/terraform-provider-packet"
+} 
+_EOF_
