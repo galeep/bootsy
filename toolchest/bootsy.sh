@@ -5,6 +5,9 @@
 # I'm not a big fan of the "let's curl things and run them" 
 # pattern. But life is a series of continuous improvements.
 
+# No stdin here. Don't even ask. 
+export DEBIAN_FRONTEND=noninteractive
+
 # Use real ansible or ppa ansible? 
 # Use ppa ansible for now
 sudo apt-add-repository ppa:ansible/ansible -y
